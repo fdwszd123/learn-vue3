@@ -289,6 +289,8 @@ export const queuePostRenderEffect = __FEATURE_SUSPENSE__
  * })
  * ```
  */
+
+//创建渲染器
 export function createRenderer<
   HostNode = RendererNode,
   HostElement = RendererElement

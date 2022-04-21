@@ -38,8 +38,10 @@ const rendererOptions = /*#__PURE__*/ extend({ patchProp }, nodeOps)
 let renderer: Renderer<Element | ShadowRoot> | HydrationRenderer
 
 let enabledHydration = false
-
+//创建渲染器 的函数
 function ensureRenderer() {
+  //如果有的话直接返回
+  //如果没有的话使用createRenderer创建一个新的
   return (
     renderer ||
     (renderer = createRenderer<Node, Element | ShadowRoot>(rendererOptions))
@@ -64,13 +66,14 @@ export const hydrate = ((...args) => {
 }) as RootHydrateFunction
 
 export const createApp = ((...args) => {
+  //创建app对象
+  // ensureRenderer()渲染器
   const app = ensureRenderer().createApp(...args)
-
   if (__DEV__) {
     injectNativeTagCheck(app)
     injectCompilerOptionsCheck(app)
   }
-
+  //重写mount
   const { mount } = app
   app.mount = (containerOrSelector: Element | ShadowRoot | string): any => {
     const container = normalizeContainer(containerOrSelector)
