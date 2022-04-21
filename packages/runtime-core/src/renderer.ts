@@ -354,9 +354,9 @@ function baseCreateRenderer(
   // Note: functions inside this closure should use `const xxx = () => {}`
   // style in order to prevent being inlined by minifiers.
   const patch: PatchFn = (
-    n1,
-    n2,
-    container,
+    n1, //旧的vnode
+    n2, //新的vnode
+    container, //挂载到的目标
     anchor = null,
     parentComponent = null,
     parentSuspense = null,
@@ -365,6 +365,7 @@ function baseCreateRenderer(
     optimized = __DEV__ && isHmrUpdating ? false : !!n2.dynamicChildren
   ) => {
     if (n1 === n2) {
+      //相同不执行操作
       return
     }
 
@@ -409,6 +410,7 @@ function baseCreateRenderer(
         )
         break
       default:
+        //处理普通的元素
         if (shapeFlag & ShapeFlags.ELEMENT) {
           processElement(
             n1,
@@ -422,6 +424,7 @@ function baseCreateRenderer(
             optimized
           )
         } else if (shapeFlag & ShapeFlags.COMPONENT) {
+          //处理组件
           processComponent(
             n1,
             n2,
@@ -1160,6 +1163,7 @@ function baseCreateRenderer(
     optimized: boolean
   ) => {
     n2.slotScopeIds = slotScopeIds
+    // n1为null直接挂载
     if (n1 == null) {
       if (n2.shapeFlag & ShapeFlags.COMPONENT_KEPT_ALIVE) {
         ;(parentComponent!.ctx as KeepAliveContext).activate(
@@ -1181,6 +1185,7 @@ function baseCreateRenderer(
         )
       }
     } else {
+      // n1不为null更新
       updateComponent(n1, n2, optimized)
     }
   }
@@ -1198,6 +1203,8 @@ function baseCreateRenderer(
     // mounting
     const compatMountInstance =
       __COMPAT__ && initialVNode.isCompatRoot && initialVNode.component
+
+    //组件的instance是组件的实例保存组件的各种状态如data，methods，setup等等，而vnode只是虚拟DOM
     const instance: ComponentInternalInstance =
       compatMountInstance ||
       (initialVNode.component = createComponentInstance(
@@ -1225,6 +1232,7 @@ function baseCreateRenderer(
       if (__DEV__) {
         startMeasure(instance, `init`)
       }
+      //对组件的所有状态进行赋值
       setupComponent(instance)
       if (__DEV__) {
         endMeasure(instance, `init`)
@@ -1244,7 +1252,7 @@ function baseCreateRenderer(
       }
       return
     }
-
+    //对组件渲染有副作用的函数的依赖收集
     setupRenderEffect(
       instance,
       initialVNode,
@@ -2317,13 +2325,15 @@ function baseCreateRenderer(
     }
     return hostNextSibling((vnode.anchor || vnode.el)!)
   }
-
+  //渲染vnode
   const render: RootRenderFunction = (vnode, container, isSVG) => {
     if (vnode == null) {
       if (container._vnode) {
+        //空的话直接卸载
         unmount(container._vnode, null, null, true)
       }
     } else {
+      // 创建或者更新vnode都用patch函数
       patch(container._vnode || null, vnode, container, null, null, null, isSVG)
     }
     flushPostFlushCbs()

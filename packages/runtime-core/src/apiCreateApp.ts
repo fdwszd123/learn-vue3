@@ -284,6 +284,7 @@ export function createAppAPI<HostElement>(
         isSVG?: boolean
       ): any {
         if (!isMounted) {
+          //根据传入的app创建一个vnode
           const vnode = createVNode(
             rootComponent as ConcreteComponent,
             rootProps
@@ -302,6 +303,7 @@ export function createAppAPI<HostElement>(
           if (isHydrate && hydrate) {
             hydrate(vnode as VNode<Node, Element>, rootContainer as any)
           } else {
+            //渲染vnode
             render(vnode, rootContainer, isSVG)
           }
           isMounted = true
